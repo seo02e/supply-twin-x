@@ -1,0 +1,409 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #f4f7fb;
+  color: #172033;
+  font-family: Arial, sans-serif;
+}
+
+.app {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 250px;
+  background: #111827;
+  color: white;
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar h1 {
+  margin: 0;
+  font-size: 34px;
+  color: #38bdf8;
+}
+
+.logo-text {
+  margin-top: 4px;
+  margin-bottom: 36px;
+  color: #9ca3af;
+}
+
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.sidebar a {
+  text-decoration: none;
+  color: #d1d5db;
+  padding: 12px 14px;
+  border-radius: 10px;
+}
+
+.sidebar a.active,
+.sidebar a:hover {
+  background: #2563eb;
+  color: white;
+}
+
+.main {
+  flex: 1;
+  padding: 28px;
+}
+
+.topbar {
+  background: white;
+  border-radius: 18px;
+  padding: 22px 26px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 26px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.topbar h2 {
+  margin: 0;
+}
+
+.topbar p {
+  margin: 6px 0 0;
+  color: #6b7280;
+}
+
+.user-badge {
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-weight: bold;
+}
+
+.page-title h1 {
+  margin: 0;
+  font-size: 30px;
+}
+
+.page-title p {
+  color: #6b7280;
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin: 24px 0;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.card,
+.panel {
+  background: white;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.card p {
+  margin: 0;
+  color: #6b7280;
+}
+
+.card h2 {
+  margin: 12px 0 4px;
+  font-size: 36px;
+}
+
+.card span {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.card.danger {
+  background: linear-gradient(135deg, #ef4444, #f97316);
+  color: white;
+}
+
+.card.danger p,
+.card.danger span {
+  color: white;
+}
+
+.panel h3 {
+  margin-top: 0;
+}
+
+.report {
+  margin-top: 18px;
+}
+
+.report p {
+  line-height: 1.7;
+  color: #374151;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr) auto;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.form-grid input {
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 14px;
+}
+
+.form-grid button,
+.delete-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 12px 16px;
+  background: #2563eb;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.delete-btn {
+  background: #ef4444;
+  padding: 8px 12px;
+}
+
+.table-panel {
+  margin-top: 18px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 14px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+th {
+  color: #475569;
+  font-size: 14px;
+}
+
+.empty-text {
+  color: #64748b;
+}
+.form-grid select {
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 14px;
+  background: white;
+}
+
+.status {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.status.ordered {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.status.shipped {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.status.delayed {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.status.completed {
+  background: #f3f4f6;
+  color: #374151;
+}
+.risk-list {
+  margin: 0;
+  padding-left: 20px;
+  line-height: 1.8;
+  color: #374151;
+}
+
+.risk-list li {
+  margin-bottom: 10px;
+}
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #eef2f7;
+}
+
+.login-card {
+  width: 420px;
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.login-card h1 {
+  margin-bottom: 10px;
+}
+
+.login-card p {
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.login-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.login-card input {
+  padding: 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.login-card button {
+  padding: 14px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
+.login-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  background: linear-gradient(135deg, #0f172a, #1e3a8a);
+  color: white;
+}
+
+.login-hero {
+  padding: 90px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hero-badge {
+  width: fit-content;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.18);
+  color: #7dd3fc;
+  font-weight: bold;
+  margin-bottom: 24px;
+}
+
+.login-hero h1 {
+  font-size: 58px;
+  margin: 0 0 20px;
+}
+
+.login-hero p {
+  max-width: 680px;
+  font-size: 19px;
+  line-height: 1.8;
+  color: #dbeafe;
+}
+
+.hero-features {
+  margin-top: 34px;
+  display: grid;
+  gap: 14px;
+  max-width: 560px;
+}
+
+.hero-features div {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 16px 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.login-box {
+  background: white;
+  color: #0f172a;
+  margin: auto 70px auto 0;
+  padding: 42px;
+  border-radius: 24px;
+  width: 420px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+}
+
+.login-box h2 {
+  margin: 0 0 10px;
+  font-size: 30px;
+}
+
+.login-box p {
+  color: #64748b;
+  margin-bottom: 28px;
+}
+
+.login-box form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.login-box input {
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+}
+
+.login-box button {
+  padding: 15px;
+  border: none;
+  border-radius: 12px;
+  background: #2563eb;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+.logout-btn {
+  width: 100%;
+  margin-top: auto;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: #ef4444;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.logout-btn:hover {
+  background: #dc2626;
+}
