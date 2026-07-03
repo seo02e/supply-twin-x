@@ -54,7 +54,13 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
         }
     )
 
+    company = db.query(Company).filter(Company.id == db_user.company_id).first()
+
     return {
         "access_token": access_token,
         "token_type": "bearer",
+        "company_id": db_user.company_id,
+        "company_name": company.company_name if company else "",
+        "role": db_user.role,
+        "username": db_user.username,
     }

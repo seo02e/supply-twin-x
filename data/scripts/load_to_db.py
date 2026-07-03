@@ -18,6 +18,13 @@ def load_csv(file_name: str, table_name: str):
     file_path = PROCESSED_DIR / file_name
     df = pd.read_csv(file_path)
 
+    # 원유 가격 CSV 컬럼명 변경
+    if table_name == "crude_oil_prices":
+        df = df.rename(columns={
+            "observation_date": "observation_date",
+            "POILDUBUSDM": "poildubusdm"
+        })
+
     clear_table(table_name)
 
     df.to_sql(
@@ -31,6 +38,7 @@ def load_csv(file_name: str, table_name: str):
 
 
 if __name__ == "__main__":
+    load_csv("crude_oil_price.csv", "crude_oil_prices")
     load_csv("material_price_clean.csv", "material_prices")
     load_csv("industrial_complex_clean.csv", "industrial_complexes")
     load_csv("industry_trend_clean.csv", "industry_trends")

@@ -407,3 +407,52 @@ th {
 .logout-btn:hover {
   background: #dc2626;
 }
+
+body {
+  background: #050b16;
+  color: #eaf2ff;
+}
+
+.main {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(37, 99, 235, 0.18), transparent 35%),
+    linear-gradient(135deg, #07111f, #0b1220);
+  min-height: 100vh;
+}
+
+.topbar {
+  background: rgba(8, 18, 32, 0.92);
+  border: 1px solid rgba(96, 165, 250, 0.18);
+  color: #eaf2ff;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+.topbar p {
+  color: #8fa3bd;
+}
+
+.sidebar {
+  background: linear-gradient(180deg, #06101f, #0b1220);
+  border-right: 1px solid rgba(96, 165, 250, 0.16);
+}
+
+.sidebar a.active,
+.sidebar a:hover {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+}
+
+.user-badge {
+  background: rgba(56, 189, 248, 0.14);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  color: #7dd3fc;
+}
+
+.page-title h1,
+.dark-dashboard h1,
+.dark-panel h3 {
+  color: #f8fbff;
+}
+
+.page-title p {
+  color: #8fa3bd;
+}

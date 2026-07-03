@@ -23,7 +23,10 @@ class UserResponse(BaseModel):
     class Config:
         from_attributes = True
 
-
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
+    company_id: int
+    company_name: str
+    role: str
+    username: str | None = None
