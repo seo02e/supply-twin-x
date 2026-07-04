@@ -21,17 +21,29 @@ function Dashboard() {
   const [productions, setProductions] = useState([]);
   const [exchange, setExchange] = useState(null);
   const [risk, setRisk] = useState(null);
+  const [oilLatest, setOilLatest] = useState(null);
+  const [oilHistory, setOilHistory] = useState([]);
 
   const fetchDashboardData = async () => {
   try {
-    const [inventoryRes, supplierRes, orderRes, productionRes, exchangeRes, riskRes] =
-      await Promise.all([
+    const [
+      inventoryRes,
+      supplierRes,
+      orderRes,
+      productionRes,
+      exchangeRes,
+      riskRes,
+      oilLatestRes,
+      oilHistoryRes,
+    ] = await Promise.all([
         api.get("/inventory/"),
         api.get("/suppliers/"),
         api.get("/purchase-orders/"),
         api.get("/productions/"),
         api.get("/exchange/usd").catch(() => ({ data: null })),
         api.get("/risk/summary").catch(() => ({ data: null })),
+        api.get("/oil/latest").catch(() => ({ data: null })),
+        api.get("/oil/history?months=12").catch(() => ({ data: [] })),
       ]);
 
       setInventories(inventoryRes.data);
@@ -40,6 +52,8 @@ function Dashboard() {
       setProductions(productionRes.data);
       setExchange(exchangeRes.data);
       setRisk(riskRes.data);
+      setOilLatest(oilLatestRes.data);
+      setOilHistory(oilHistoryRes.data);
     } catch (error) {
       console.error("Dashboard data fetch failed:", error);
     }
@@ -69,13 +83,10 @@ function Dashboard() {
   const riskScore = risk?.total_score ?? 0;
   const riskLevel = risk?.risk_level ? `${risk.risk_level} RISK` : "-";
 
-  const priceData = [
-    { month: "1월", dubai: 82, wti: 78, exchange: 1320 },
-    { month: "2월", dubai: 86, wti: 81, exchange: 1360 },
-    { month: "3월", dubai: 91, wti: 84, exchange: 1410 },
-    { month: "4월", dubai: 95, wti: 88, exchange: 1480 },
-    { month: "5월", dubai: 101, wti: 92, exchange: exchange?.base_rate || 1554 },
-  ];
+  const priceData = oilHistory.map((item) => ({
+    month: item.observation_date.slice(2, 7).replace("-", "."),
+    dubai: item.price,
+  }));
 
   const riskData = (risk?.factors ?? []).map((factor) => ({
     name: factor.name,
@@ -103,8 +114,12 @@ function Dashboard() {
 
         <div className="kpi-card">
           <p>Dubai Oil Price</p>
-          <h2>87.45<small>$/bbl</small></h2>
-          <strong className="up">▲ 8.2% vs 7일 전</strong>
+          <h2>{oilLatest ? oilLatest.price : "-"}<small>$/bbl</small></h2>
+          <strong className={oilLatest?.change_rate >= 0 ? "up" : "down"}>
+            {oilLatest?.change_rate != null
+              ? `${oilLatest.change_rate >= 0 ? "▲" : "▼"} ${Math.abs(oilLatest.change_rate)}% vs 전월`
+              : "데이터 없음"}
+          </strong>
         </div>
 
         <div className="kpi-card">
@@ -161,6 +176,7 @@ function Dashboard() {
           <h2>현재 공급망 위험도는 {riskLevel} 단계입니다.</h2>
 
           <ul>
+            <li>두바이유 {oilLatest ? `${oilLatest.price}$/bbl` : "-"} 반영</li>
             <li>USD/KRW 환율 {exchange ? Number(exchange.base_rate).toLocaleString() : "-"}원 반영</li>
             <li>안전재고 이하 품목 {shortageItems.length}개</li>
             <li>지연 발주 {delayedOrders.length}건 발생</li>
@@ -173,14 +189,13 @@ function Dashboard() {
         </section>
 
         <section className="dark-panel">
-          <h3>Commodity Price Trend</h3>
+          <h3>Commodity Price Trend (Dubai Crude, $/bbl)</h3>
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={priceData}>
               <XAxis dataKey="month" />
-              <YAxis />
+              <YAxis domain={["auto", "auto"]} />
               <Tooltip />
-              <Line type="monotone" dataKey="dubai" strokeWidth={3} />
-              <Line type="monotone" dataKey="wti" strokeWidth={3} />
+              <Line type="monotone" dataKey="dubai" strokeWidth={3} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </section>

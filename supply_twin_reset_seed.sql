@@ -151,6 +151,7 @@ CREATE TABLE risk_histories (
     import_score NUMERIC,
     inventory_score NUMERIC,
     operation_score NUMERIC,
+    oil_score NUMERIC,
     reason TEXT,
     recommendation TEXT,
     created_at TIMESTAMP DEFAULT NOW()
