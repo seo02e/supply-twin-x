@@ -48,7 +48,7 @@ function Risk() {
   const level = totalScore >= 70 ? "HIGH" : totalScore >= 40 ? "MEDIUM" : "LOW";
 
   return (
-    <div>
+  <div className="risk-page">
       <div className="page-title">
         <h1>Risk Analysis</h1>
         <p>ERP 입력 데이터를 기반으로 공급망 위험도를 계산합니다.</p>
@@ -59,6 +59,10 @@ function Risk() {
           <p>Total Risk Score</p>
           <h2>{totalScore}</h2>
           <span>{level}</span>
+
+          <div className="risk-score-bar">
+            <div style={{ width: `${totalScore}%` }} />
+          </div>
         </div>
 
         <div className="card">

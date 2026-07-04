@@ -5,7 +5,29 @@ from app.schemas.inventory import InventoryCreate, InventoryUpdate
 
 
 def create_inventory(db: Session, inventory: InventoryCreate):
-    db_inventory = Inventory(**inventory.model_dump())
+    data = inventory.model_dump()
+
+    existing = (
+        db.query(Inventory)
+        .filter(
+            Inventory.company_id == inventory.company_id,
+            Inventory.material_name == inventory.material_name,
+            Inventory.hs_code == inventory.hs_code,
+        )
+        .first()
+    )
+
+    if existing:
+        existing.current_stock = inventory.current_stock
+        existing.safety_stock = inventory.safety_stock
+        existing.daily_usage = inventory.daily_usage
+        existing.unit = inventory.unit
+
+        db.commit()
+        db.refresh(existing)
+        return existing
+
+    db_inventory = Inventory(**data)
 
     db.add(db_inventory)
     db.commit()

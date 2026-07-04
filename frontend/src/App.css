@@ -238,3 +238,479 @@
 .wide {
   grid-column: 1 / -1;
 }
+
+.supplier-panel {
+  background: rgba(8, 18, 32, 0.96);
+  border: 1px solid rgba(96, 165, 250, 0.18);
+  color: #eaf2ff;
+}
+
+.supplier-panel h3 {
+  color: #f8fbff;
+}
+
+.supplier-form {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr) 180px;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.supplier-form input {
+  background: #0f1b2d;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  color: #eaf2ff;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.supplier-form input::placeholder {
+  color: #8fa3bd;
+}
+
+.supplier-form button {
+  border: none;
+  border-radius: 10px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.supplier-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin: 22px 0;
+}
+
+.supplier-kpi-card {
+  background: rgba(8, 18, 32, 0.96);
+  border: 1px solid rgba(96, 165, 250, 0.18);
+  border-radius: 18px;
+  padding: 20px;
+  color: #eaf2ff;
+}
+
+.supplier-kpi-card p {
+  margin: 0;
+  color: #8fa3bd;
+}
+
+.supplier-kpi-card h2 {
+  margin: 10px 0 0;
+  color: #38bdf8;
+  font-size: 28px;
+}
+
+.supplier-kpi-card.danger h2 {
+  color: #f87171;
+}
+
+.supplier-table th {
+  color: #bcd4f6;
+}
+
+.supplier-table td {
+  color: #eaf2ff;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.supplier-name,
+.material-name {
+  color: #38bdf8 !important;
+  font-weight: bold;
+}
+
+.supplier-status {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.supplier-status.안정 {
+  background: rgba(34, 197, 94, 0.16);
+  color: #4ade80;
+}
+
+.supplier-status.주의 {
+  background: rgba(234, 179, 8, 0.16);
+  color: #facc15;
+}
+
+.supplier-status.위험 {
+  background: rgba(239, 68, 68, 0.16);
+  color: #f87171;
+}
+
+.risk-score-cell span {
+  color: #facc15;
+  font-weight: bold;
+}
+
+.risk-score-bar,
+.dependency-bar {
+  width: 120px;
+  height: 8px;
+  margin-top: 6px;
+  background: rgba(148, 163, 184, 0.22);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.risk-score-bar div,
+.dependency-bar div {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #2563eb);
+  border-radius: 999px;
+}
+
+.dependency-panel {
+  margin-top: 18px;
+}
+
+.dependency-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.dependency-item {
+  background: rgba(15, 27, 45, 0.9);
+  border: 1px solid rgba(96, 165, 250, 0.14);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.dependency-item strong {
+  color: #38bdf8;
+}
+
+.dependency-item p {
+  margin: 6px 0 0;
+  color: #8fa3bd;
+}
+
+.dependency-bar-wrap span {
+  color: #facc15;
+  font-weight: bold;
+}
+.po-panel {
+  background: rgba(8, 18, 32, 0.96);
+  border: 1px solid rgba(96, 165, 250, 0.18);
+  color: #eaf2ff;
+}
+
+.po-panel h3 {
+  color: #f8fbff;
+}
+
+.po-form {
+  display: grid;
+  grid-template-columns: 130px 1fr 1fr 1fr 1fr 170px 170px;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.po-form input,
+.po-form select {
+  background: #0f1b2d;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  color: #eaf2ff;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.po-form button {
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.po-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin: 22px 0;
+}
+
+.po-kpi-card {
+  background: rgba(8, 18, 32, 0.96);
+  border: 1px solid rgba(96, 165, 250, 0.18);
+  border-radius: 18px;
+  padding: 20px;
+}
+
+.po-kpi-card p {
+  margin: 0;
+  color: #8fa3bd;
+}
+
+.po-kpi-card h2 {
+  margin: 10px 0 0;
+  color: #38bdf8;
+  font-size: 28px;
+}
+
+.po-kpi-card.danger h2 {
+  color: #f87171;
+}
+
+.po-kpi-card.warning h2 {
+  color: #facc15;
+}
+
+.po-table th {
+  color: #bcd4f6;
+}
+
+.po-table td {
+  color: #eaf2ff;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.po-safe-text {
+  color: #4ade80 !important;
+  font-weight: bold;
+}
+
+.po-warning-text {
+  color: #facc15 !important;
+  font-weight: bold;
+}
+
+.po-danger-text {
+  color: #f87171 !important;
+  font-weight: bold;
+}
+
+.po-risk-status {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.po-risk-status.정상,
+.po-risk-status.완료 {
+  background: rgba(34, 197, 94, 0.16);
+  color: #4ade80;
+}
+
+.po-risk-status.임박 {
+  background: rgba(234, 179, 8, 0.16);
+  color: #facc15;
+}
+
+.po-risk-status.지연 {
+  background: rgba(239, 68, 68, 0.16);
+  color: #f87171;
+}
+
+.po-risk-cell span {
+  color: #facc15;
+  font-weight: bold;
+}
+
+.po-risk-bar {
+  width: 110px;
+  height: 8px;
+  margin-top: 6px;
+  background: rgba(148, 163, 184, 0.22);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.po-risk-bar div {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #2563eb);
+  border-radius: 999px;
+}
+
+.production-panel {
+  background: rgba(8, 18, 32, 0.96);
+  border: 1px solid rgba(96, 165, 250, 0.18);
+  color: #eaf2ff;
+}
+
+.production-panel h3 {
+  color: #f8fbff;
+}
+
+.production-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 180px;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.production-form input {
+  background: #0f1b2d;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  color: #eaf2ff;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.production-form input::placeholder {
+  color: #8fa3bd;
+}
+
+.production-form button {
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.production-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin: 22px 0;
+}
+
+.production-kpi-card {
+  background: rgba(8, 18, 32, 0.96);
+  border: 1px solid rgba(96, 165, 250, 0.18);
+  border-radius: 18px;
+  padding: 20px;
+  color: #eaf2ff;
+}
+
+.production-kpi-card p {
+  margin: 0;
+  color: #8fa3bd;
+}
+
+.production-kpi-card h2 {
+  margin: 10px 0 0;
+  color: #38bdf8;
+  font-size: 28px;
+}
+
+.production-kpi-card.danger h2 {
+  color: #f87171;
+}
+
+.production-table th {
+  color: #bcd4f6;
+}
+
+.production-table td {
+  color: #eaf2ff;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.product-name {
+  color: #38bdf8 !important;
+  font-weight: bold;
+}
+
+.production-status {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.production-status.정상 {
+  background: rgba(34, 197, 94, 0.16);
+  color: #4ade80;
+}
+
+.production-status.주의 {
+  background: rgba(234, 179, 8, 0.16);
+  color: #facc15;
+}
+
+.production-status.위험 {
+  background: rgba(239, 68, 68, 0.16);
+  color: #f87171;
+}
+
+.production-risk-cell span {
+  color: #facc15;
+  font-weight: bold;
+}
+
+.production-risk-bar {
+  width: 120px;
+  height: 8px;
+  margin-top: 6px;
+  background: rgba(148, 163, 184, 0.22);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.production-risk-bar div {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #2563eb);
+  border-radius: 999px;
+}
+/* Risk Analysis */
+.risk-page .card,
+.risk-page .panel {
+  background: rgba(8, 18, 32, 0.96);
+  border: 1px solid rgba(96, 165, 250, 0.18);
+  color: #eaf2ff;
+}
+
+.risk-page .card p,
+.risk-page .panel p {
+  color: #8fa3bd;
+}
+
+.risk-page .card h2 {
+  color: #38bdf8;
+}
+
+.risk-page .card.danger {
+  background: linear-gradient(135deg, #ef4444, #f97316);
+  border: none;
+}
+
+.risk-page .card.danger h2,
+.risk-page .card.danger p,
+.risk-page .card.danger span {
+  color: white;
+}
+
+.risk-page .panel h3 {
+  color: #f8fbff;
+}
+
+.risk-page .risk-list {
+  color: #dbeafe;
+}
+
+.risk-page .risk-list li {
+  margin-bottom: 14px;
+}
+
+.risk-page .risk-list strong {
+  color: #38bdf8;
+}
+
+.risk-page .report {
+  background: linear-gradient(
+    135deg,
+    rgba(37, 99, 235, 0.2),
+    rgba(8, 18, 32, 0.96)
+  );
+}
+
+.risk-page .report strong {
+  color: #facc15;
+}
