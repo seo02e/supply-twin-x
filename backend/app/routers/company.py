@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.db.database import get_db
 from app.models.models import Company
-from app.schemas.company import CompanyCreate, CompanyResponse
+from app.schemas.company import CompanyCreate, CompanyPublic, CompanyResponse
 
 router = APIRouter(prefix="/companies", tags=["Companies"])
 
@@ -19,6 +19,6 @@ def create_company(company: CompanyCreate, db: Session = Depends(get_db)):
     return new_company
 
 
-@router.get("/", response_model=list[CompanyResponse])
+@router.get("/", response_model=list[CompanyPublic])
 def get_companies(db: Session = Depends(get_db)):
     return db.query(Company).all()

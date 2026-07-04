@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { login } from "../services/auth";
 
 function Login() {
@@ -71,6 +71,10 @@ function Login() {
 
           <button type="submit">Dashboard 접속</button>
         </form>
+
+        <p className="signup-link">
+          계정이 없으신가요? <Link to="/signup">회원가입</Link>
+        </p>
       </section>
     </div>
   );

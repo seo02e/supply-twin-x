@@ -392,6 +392,37 @@ th {
   font-weight: bold;
   cursor: pointer;
 }
+.login-box select {
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+  background: white;
+}
+.signup-link {
+  margin-top: 18px;
+  text-align: center;
+  color: #64748b;
+}
+.signup-mode-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.signup-mode-toggle button {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: white;
+  color: #475569;
+  font-weight: 600;
+  cursor: pointer;
+}
+.signup-mode-toggle button.active {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
 .logout-btn {
   width: 100%;
   margin-top: auto;

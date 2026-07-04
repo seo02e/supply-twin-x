@@ -9,6 +9,7 @@ import PurchaseOrder from "./pages/PurchaseOrder";
 import Production from "./pages/Production";
 import Risk from "./pages/Risk";
 import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("access_token");
@@ -25,6 +26,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
 
         <Route
           path="/"
