@@ -16,8 +16,7 @@ function PurchaseOrder() {
   });
 
   const fetchOrders = async () => {
-    const companyId = localStorage.getItem("company_id");
-    const res = await api.get(`/purchase-orders/?company_id=${companyId}`);
+    const res = await api.get("/purchase-orders/");
     setOrders(res.data);
   };
 
@@ -95,8 +94,6 @@ function PurchaseOrder() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const companyId = localStorage.getItem("company_id");
-
     if (editingId) {
       await api.put(`/purchase-orders/${editingId}`, {
         supplier_id: Number(form.supplier_id),
@@ -108,7 +105,6 @@ function PurchaseOrder() {
       });
     } else {
       await api.post("/purchase-orders/", {
-        company_id: Number(companyId),
         supplier_id: Number(form.supplier_id),
         material_name: form.material_name,
         quantity: Number(form.quantity),

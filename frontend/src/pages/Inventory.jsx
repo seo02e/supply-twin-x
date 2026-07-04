@@ -15,8 +15,7 @@ function Inventory() {
   });
 
   const fetchInventories = async () => {
-    const companyId = localStorage.getItem("company_id");
-    const res = await api.get(`/inventory/?company_id=${companyId}`);
+    const res = await api.get("/inventory/");
     setInventories(res.data);
   };
 
@@ -83,8 +82,6 @@ function Inventory() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const companyId = localStorage.getItem("company_id");
-
     if (editingId) {
       await api.put(`/inventory/${editingId}`, {
         material_name: form.material_name,
@@ -95,7 +92,6 @@ function Inventory() {
       });
     } else {
       await api.post("/inventory/", {
-        company_id: Number(companyId),
         material_name: form.material_name,
         current_stock: Number(form.current_stock),
         safety_stock: Number(form.safety_stock),

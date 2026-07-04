@@ -14,8 +14,7 @@ function Supplier() {
   });
 
   const fetchSuppliers = async () => {
-    const companyId = localStorage.getItem("company_id");
-    const res = await api.get(`/suppliers/?company_id=${companyId}`);
+    const res = await api.get("/suppliers/");
     setSuppliers(res.data);
   };
 
@@ -94,8 +93,6 @@ function Supplier() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const companyId = localStorage.getItem("company_id");
-
     if (editingId) {
       await api.put(`/suppliers/${editingId}`, {
         supplier_name: form.supplier_name,
@@ -105,7 +102,6 @@ function Supplier() {
       });
     } else {
       await api.post("/suppliers/", {
-        company_id: Number(companyId),
         supplier_name: form.supplier_name,
         country: form.country,
         material_name: form.material_name,

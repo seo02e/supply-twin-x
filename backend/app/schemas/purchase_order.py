@@ -5,7 +5,6 @@ from typing import Optional
 
 
 class PurchaseOrderCreate(BaseModel):
-    company_id: int
     supplier_id: Optional[int] = None
     material_name: str
     quantity: Decimal

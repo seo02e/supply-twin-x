@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.core.deps import get_current_user
 from app.db.database import get_db
+from app.models.models import User
 from app.schemas.supplier import (
     SupplierCreate,
     SupplierUpdate,
@@ -19,26 +21,28 @@ router = APIRouter(
 def create_supplier(
     supplier: SupplierCreate,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    return supplier_service.create_supplier(db, supplier)
+    return supplier_service.create_supplier(db, supplier, current_user.company_id)
 
 
 @router.get("/", response_model=list[SupplierResponse])
 def get_suppliers(
-    company_id: int,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    return supplier_service.get_suppliers(db, company_id)
+    return supplier_service.get_suppliers(db, current_user.company_id)
 
 
 @router.get("/{supplier_id}", response_model=SupplierResponse)
 def get_supplier(
     supplier_id: int,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     supplier = supplier_service.get_supplier(db, supplier_id)
 
-    if not supplier:
+    if not supplier or supplier.company_id != current_user.company_id:
         raise HTTPException(status_code=404, detail="Supplier not found")
 
     return supplier
@@ -49,23 +53,27 @@ def update_supplier(
     supplier_id: int,
     supplier: SupplierUpdate,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    updated = supplier_service.update_supplier(db, supplier_id, supplier)
+    existing = supplier_service.get_supplier(db, supplier_id)
 
-    if not updated:
+    if not existing or existing.company_id != current_user.company_id:
         raise HTTPException(status_code=404, detail="Supplier not found")
 
-    return updated
+    return supplier_service.update_supplier(db, supplier_id, supplier)
 
 
 @router.delete("/{supplier_id}")
 def delete_supplier(
     supplier_id: int,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    deleted = supplier_service.delete_supplier(db, supplier_id)
+    existing = supplier_service.get_supplier(db, supplier_id)
 
-    if not deleted:
+    if not existing or existing.company_id != current_user.company_id:
         raise HTTPException(status_code=404, detail="Supplier not found")
+
+    supplier_service.delete_supplier(db, supplier_id)
 
     return {"message": "Supplier deleted successfully"}

@@ -7,8 +7,8 @@ from app.schemas.purchase_order import (
 )
 
 
-def create_purchase_order(db: Session, purchase_order: PurchaseOrderCreate):
-    db_purchase_order = PurchaseOrder(**purchase_order.model_dump())
+def create_purchase_order(db: Session, purchase_order: PurchaseOrderCreate, company_id: int):
+    db_purchase_order = PurchaseOrder(**purchase_order.model_dump(), company_id=company_id)
 
     db.add(db_purchase_order)
     db.commit()

@@ -32,8 +32,9 @@ def find_hscode_by_material(material_name: str):
     return matched.iloc[0][code_col]
 
 
-def create_inventory(db: Session, inventory: InventoryCreate):
+def create_inventory(db: Session, inventory: InventoryCreate, company_id: int):
     data = inventory.model_dump()
+    data["company_id"] = company_id
 
     if not data.get("hs_code"):
         data["hs_code"] = find_hscode_by_material(data.get("material_name"))

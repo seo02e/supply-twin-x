@@ -23,17 +23,15 @@ function Dashboard() {
   const [risk, setRisk] = useState(null);
 
   const fetchDashboardData = async () => {
-  const companyId = localStorage.getItem("company_id");
-
   try {
     const [inventoryRes, supplierRes, orderRes, productionRes, exchangeRes, riskRes] =
       await Promise.all([
-        api.get(`/inventory/?company_id=${companyId}`),
-        api.get(`/suppliers/?company_id=${companyId}`),
-        api.get(`/purchase-orders/?company_id=${companyId}`),
-        api.get(`/productions/?company_id=${companyId}`),
+        api.get("/inventory/"),
+        api.get("/suppliers/"),
+        api.get("/purchase-orders/"),
+        api.get("/productions/"),
         api.get("/exchange/usd").catch(() => ({ data: null })),
-        api.get(`/risk/summary?company_id=${companyId}`).catch(() => ({ data: null })),
+        api.get("/risk/summary").catch(() => ({ data: null })),
       ]);
 
       setInventories(inventoryRes.data);

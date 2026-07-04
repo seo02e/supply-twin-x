@@ -9,15 +9,14 @@ function Risk() {
   const [error, setError] = useState(null);
 
   const fetchData = async () => {
-    const companyId = localStorage.getItem("company_id");
     setLoading(true);
     setError(null);
 
     try {
       const [inventoryRes, orderRes, riskRes] = await Promise.all([
-        api.get(`/inventory/?company_id=${companyId}`),
-        api.get(`/purchase-orders/?company_id=${companyId}`),
-        api.get(`/risk/summary?company_id=${companyId}`),
+        api.get("/inventory/"),
+        api.get("/purchase-orders/"),
+        api.get("/risk/summary"),
       ]);
 
       setInventories(inventoryRes.data);

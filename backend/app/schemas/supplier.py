@@ -4,7 +4,6 @@ from typing import Optional
 
 
 class SupplierCreate(BaseModel):
-    company_id: int
     supplier_name: str
     country: str
     material_name: str

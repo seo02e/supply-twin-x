@@ -14,8 +14,7 @@ function Production() {
   });
 
   const fetchProductions = async () => {
-    const companyId = localStorage.getItem("company_id");
-    const res = await api.get(`/productions/?company_id=${companyId}`);
+    const res = await api.get("/productions/");
     setProductions(res.data);
   };
 
@@ -83,8 +82,6 @@ function Production() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const companyId = localStorage.getItem("company_id");
-
     if (editingId) {
       await api.put(`/productions/${editingId}`, {
         product_name: form.product_name,
@@ -94,7 +91,6 @@ function Production() {
       });
     } else {
       await api.post("/productions/", {
-        company_id: Number(companyId),
         product_name: form.product_name,
         production_quantity: Number(form.production_quantity),
         operation_rate: Number(form.operation_rate),

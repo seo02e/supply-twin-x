@@ -4,8 +4,8 @@ from app.models.models import Supplier
 from app.schemas.supplier import SupplierCreate, SupplierUpdate
 
 
-def create_supplier(db: Session, supplier: SupplierCreate):
-    db_supplier = Supplier(**supplier.model_dump())
+def create_supplier(db: Session, supplier: SupplierCreate, company_id: int):
+    db_supplier = Supplier(**supplier.model_dump(), company_id=company_id)
 
     db.add(db_supplier)
     db.commit()

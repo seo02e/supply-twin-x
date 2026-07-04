@@ -4,8 +4,8 @@ from app.models.models import Production
 from app.schemas.production import ProductionCreate, ProductionUpdate
 
 
-def create_production(db: Session, production: ProductionCreate):
-    db_production = Production(**production.model_dump())
+def create_production(db: Session, production: ProductionCreate, company_id: int):
+    db_production = Production(**production.model_dump(), company_id=company_id)
 
     db.add(db_production)
     db.commit()
