@@ -25,9 +25,10 @@ def create_supplier(
 
 @router.get("/", response_model=list[SupplierResponse])
 def get_suppliers(
+    company_id: int,
     db: Session = Depends(get_db),
 ):
-    return supplier_service.get_suppliers(db)
+    return supplier_service.get_suppliers(db, company_id)
 
 
 @router.get("/{supplier_id}", response_model=SupplierResponse)

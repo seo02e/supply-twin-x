@@ -37,7 +37,13 @@ class IndustryTrend(Base):
     operation_rate_current = Column(Numeric)
     created_at = Column(DateTime, server_default=func.now())
 
+class HSCode(Base):
+    __tablename__ = "hs_codes"
 
+    id = Column(Integer, primary_key=True)
+    hs_code = Column(String(20), unique=True)
+    item_name = Column(String(255))
+    
 class MaterialPrice(Base):
     __tablename__ = "material_prices"
 
@@ -53,6 +59,7 @@ class CustomsTrade(Base):
     __tablename__ = "customs_trades"
 
     id = Column(Integer, primary_key=True, index=True)
+    company_id = Column(Integer, ForeignKey("companies.id", ondelete="CASCADE"))
     hs_code = Column(String(20))
     item_name = Column(String(255))
     country_name = Column(String(100))
@@ -63,7 +70,16 @@ class CustomsTrade(Base):
     trade_month = Column(String(20))
     created_at = Column(DateTime, server_default=func.now())
 
+class ExchangeRate(Base):
+    __tablename__ = "exchange_rates"
 
+    id = Column(Integer, primary_key=True, index=True)
+    currency_code = Column(String(10), nullable=False)
+    currency_name = Column(String(100))
+    base_rate = Column(Numeric)
+    rate_date = Column(Date, nullable=False)
+    created_at = Column(DateTime, server_default=func.now())
+    
 class Company(Base):
     __tablename__ = "companies"
 

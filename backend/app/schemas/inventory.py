@@ -11,7 +11,7 @@ class InventoryCreate(BaseModel):
     safety_stock: Decimal
     daily_usage: Decimal
     unit: str
-    hs_code: str
+    hs_code: Optional[str] = None
 
 
 class InventoryUpdate(BaseModel):

@@ -18,13 +18,12 @@ def get_productions(db: Session):
     return db.query(Production).all()
 
 
-def get_production(db: Session, production_id: int):
+def get_productions(db: Session, company_id: int):
     return (
         db.query(Production)
-        .filter(Production.id == production_id)
-        .first()
+        .filter(Production.company_id == company_id)
+        .all()
     )
-
 
 def update_production(
     db: Session,

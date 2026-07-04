@@ -8,21 +8,11 @@ function Inventory() {
   const [form, setForm] = useState({
     company_id: 1,
     material_name: "",
-    hs_code: "",
     current_stock: "",
     safety_stock: "",
     daily_usage: "",
     unit: "kg",
   });
-  const hsCodeMap = {
-  원유: "2709",
-  석유: "2709",
-  나프타: "2710",
-  윤활기유: "2710",
-  리튬: "283691",
-  니켈: "7502",
-  알루미늄: "7601",
-  };
 
   const fetchInventories = async () => {
     const res = await api.get("/inventory/");
@@ -34,12 +24,15 @@ function Inventory() {
   }, []);
 
   const totalStock = useMemo(() => {
-    return inventories.reduce((sum, item) => sum + Number(item.current_stock || 0), 0);
+    return inventories.reduce(
+      (sum, item) => sum + Number(item.current_stock || 0),
+      0
+    );
   }, [inventories]);
 
   const filteredInventories = useMemo(() => {
     return inventories.filter((item) => {
-      const text = `${item.material_name} ${item.hs_code} ${item.unit}`.toLowerCase();
+      const text = `${item.material_name} ${item.hs_code || ""} ${item.unit}`.toLowerCase();
       return text.includes(keyword.toLowerCase());
     });
   }, [inventories, keyword]);
@@ -68,15 +61,6 @@ function Inventory() {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    if (name === "material_name") {
-      setForm({
-        ...form,
-        material_name: value,
-        hs_code: hsCodeMap[value.trim()] || "",
-      });
-      return;
-    }
-
     setForm({
       ...form,
       [name]: value,
@@ -87,17 +71,17 @@ function Inventory() {
     e.preventDefault();
 
     await api.post("/inventory/", {
-      ...form,
       company_id: Number(form.company_id),
+      material_name: form.material_name,
       current_stock: Number(form.current_stock),
       safety_stock: Number(form.safety_stock),
       daily_usage: Number(form.daily_usage),
+      unit: form.unit,
     });
 
     setForm({
       company_id: 1,
       material_name: "",
-      hs_code: "",
       current_stock: "",
       safety_stock: "",
       daily_usage: "",
@@ -111,7 +95,6 @@ function Inventory() {
     setForm({
       company_id: item.company_id,
       material_name: item.material_name,
-      hs_code: item.hs_code || "",
       current_stock: item.current_stock,
       safety_stock: item.safety_stock,
       daily_usage: item.daily_usage,
@@ -135,12 +118,44 @@ function Inventory() {
         <h3>재고 등록</h3>
 
         <form className="form-grid inventory-form" onSubmit={handleSubmit}>
-          <input name="material_name" placeholder="원자재명 예: 원유" value={form.material_name} onChange={handleChange} required />
-          <input name="hs_code" placeholder="HS Code 자동입력 또는 직접입력"value={form.hs_code}onChange={handleChange}/>
-          <input name="current_stock" type="number" placeholder="현재 재고" value={form.current_stock} onChange={handleChange} required />
-          <input name="safety_stock" type="number" placeholder="안전 재고" value={form.safety_stock} onChange={handleChange} required />
-          <input name="daily_usage" type="number" placeholder="일일 사용량" value={form.daily_usage} onChange={handleChange} required />
-          <input name="unit" placeholder="단위" value={form.unit} onChange={handleChange} required />
+          <input
+            name="material_name"
+            placeholder="원자재명 예: 닭"
+            value={form.material_name}
+            onChange={handleChange}
+            required
+          />
+          <input
+            name="current_stock"
+            type="number"
+            placeholder="현재 재고"
+            value={form.current_stock}
+            onChange={handleChange}
+            required
+          />
+          <input
+            name="safety_stock"
+            type="number"
+            placeholder="안전 재고"
+            value={form.safety_stock}
+            onChange={handleChange}
+            required
+          />
+          <input
+            name="daily_usage"
+            type="number"
+            placeholder="일일 사용량"
+            value={form.daily_usage}
+            onChange={handleChange}
+            required
+          />
+          <input
+            name="unit"
+            placeholder="단위"
+            value={form.unit}
+            onChange={handleChange}
+            required
+          />
 
           <button type="submit">재고 등록 / 수정</button>
         </form>
@@ -184,7 +199,7 @@ function Inventory() {
                 <tr key={item.id}>
                   <td>{item.id}</td>
                   <td className="material-name">{item.material_name}</td>
-                  <td className="code-text">{item.hs_code}</td>
+                  <td className="code-text">{item.hs_code || "-"}</td>
                   <td>{Number(item.current_stock).toLocaleString()}</td>
                   <td>{Number(item.safety_stock).toLocaleString()}</td>
                   <td>{Number(item.daily_usage).toLocaleString()}</td>

@@ -25,9 +25,10 @@ def create_purchase_order(
 
 @router.get("/", response_model=list[PurchaseOrderResponse])
 def get_purchase_orders(
+    company_id: int,
     db: Session = Depends(get_db),
 ):
-    return purchase_order_service.get_purchase_orders(db)
+    return purchase_order_service.get_purchase_orders(db, company_id)
 
 
 @router.get("/{purchase_order_id}", response_model=PurchaseOrderResponse)

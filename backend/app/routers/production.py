@@ -25,9 +25,10 @@ def create_production(
 
 @router.get("/", response_model=list[ProductionResponse])
 def get_productions(
+    company_id: int,
     db: Session = Depends(get_db),
 ):
-    return production_service.get_productions(db)
+    return production_service.get_productions(db, company_id)
 
 
 @router.get("/{production_id}", response_model=ProductionResponse)

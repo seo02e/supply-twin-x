@@ -22,23 +22,30 @@ function Dashboard() {
   const [exchange, setExchange] = useState(null);
 
   const fetchDashboardData = async () => {
-    const [inventoryRes, supplierRes, orderRes, productionRes, exchangeRes] =
-      await Promise.all([
-        api.get("/inventory/"),
-        api.get("/suppliers/"),
-        api.get("/purchase-orders/"),
-        api.get("/productions/"),
-        api.get("/exchange/usd").catch(() => ({ data: null })),
-      ]);
+    try {
+      const [inventoryRes, supplierRes, orderRes, productionRes, exchangeRes] =
+        await Promise.all([
+          api.get("/inventory/"),
+          api.get("/suppliers/"),
+          api.get("/purchase-orders/"),
+          api.get("/productions/"),
+          api.get("/exchange/usd").catch(() => ({ data: null })),
+        ]);
 
-    setInventories(inventoryRes.data);
-    setSuppliers(supplierRes.data);
-    setOrders(orderRes.data);
-    setProductions(productionRes.data);
-    setExchange(exchangeRes.data);
+      setInventories(inventoryRes.data);
+      setSuppliers(supplierRes.data);
+      setOrders(orderRes.data);
+      setProductions(productionRes.data);
+      setExchange(exchangeRes.data);
+    } catch (error) {
+      console.error("Dashboard data fetch failed:", error);
+    }
   };
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
     fetchDashboardData();
   }, []);
 

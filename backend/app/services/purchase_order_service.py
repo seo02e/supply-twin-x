@@ -21,11 +21,11 @@ def get_purchase_orders(db: Session):
     return db.query(PurchaseOrder).all()
 
 
-def get_purchase_order(db: Session, purchase_order_id: int):
+def get_purchase_orders(db: Session, company_id: int):
     return (
         db.query(PurchaseOrder)
-        .filter(PurchaseOrder.id == purchase_order_id)
-        .first()
+        .filter(PurchaseOrder.company_id == company_id)
+        .all()
     )
 
 

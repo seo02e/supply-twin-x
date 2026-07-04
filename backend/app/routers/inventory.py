@@ -25,9 +25,10 @@ def create_inventory(
 
 @router.get("/", response_model=list[InventoryResponse])
 def get_inventories(
+    company_id: int,
     db: Session = Depends(get_db),
 ):
-    return inventory_service.get_inventories(db)
+    return inventory_service.get_inventories(db, company_id)
 
 
 @router.get("/{inventory_id}", response_model=InventoryResponse)
