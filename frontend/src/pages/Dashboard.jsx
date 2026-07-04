@@ -20,18 +20,20 @@ function Dashboard() {
   const [orders, setOrders] = useState([]);
   const [productions, setProductions] = useState([]);
   const [exchange, setExchange] = useState(null);
+  const [risk, setRisk] = useState(null);
 
   const fetchDashboardData = async () => {
   const companyId = localStorage.getItem("company_id");
 
   try {
-    const [inventoryRes, supplierRes, orderRes, productionRes, exchangeRes] =
+    const [inventoryRes, supplierRes, orderRes, productionRes, exchangeRes, riskRes] =
       await Promise.all([
         api.get(`/inventory/?company_id=${companyId}`),
         api.get(`/suppliers/?company_id=${companyId}`),
         api.get(`/purchase-orders/?company_id=${companyId}`),
         api.get(`/productions/?company_id=${companyId}`),
         api.get("/exchange/usd").catch(() => ({ data: null })),
+        api.get(`/risk/summary?company_id=${companyId}`).catch(() => ({ data: null })),
       ]);
 
       setInventories(inventoryRes.data);
@@ -39,6 +41,7 @@ function Dashboard() {
       setOrders(orderRes.data);
       setProductions(productionRes.data);
       setExchange(exchangeRes.data);
+      setRisk(riskRes.data);
     } catch (error) {
       console.error("Dashboard data fetch failed:", error);
     }
@@ -65,19 +68,8 @@ function Dashboard() {
         ).toFixed(1)
       : 0;
 
-  const inventoryRisk = Math.min(35, shortageItems.length * 20);
-  const orderRisk = Math.min(20, delayedOrders.length * 20);
-  const operationRisk = avgOperationRate < 80 ? 20 : 0;
-  const exchangeRisk = exchange ? 15 : 0;
-  const oilRisk = 25;
-
-  const riskScore = Math.min(
-    100,
-    inventoryRisk + orderRisk + operationRisk + exchangeRisk + oilRisk
-  );
-
-  const riskLevel =
-    riskScore >= 70 ? "HIGH RISK" : riskScore >= 40 ? "MEDIUM RISK" : "LOW RISK";
+  const riskScore = risk?.total_score ?? 0;
+  const riskLevel = risk?.risk_level ? `${risk.risk_level} RISK` : "-";
 
   const priceData = [
     { month: "1월", dubai: 82, wti: 78, exchange: 1320 },
@@ -87,13 +79,10 @@ function Dashboard() {
     { month: "5월", dubai: 101, wti: 92, exchange: exchange?.base_rate || 1554 },
   ];
 
-  const riskData = [
-    { name: "원유 가격", score: oilRisk },
-    { name: "환율", score: exchangeRisk },
-    { name: "재고 부족", score: inventoryRisk },
-    { name: "발주 지연", score: orderRisk },
-    { name: "가동률", score: operationRisk },
-  ];
+  const riskData = (risk?.factors ?? []).map((factor) => ({
+    name: factor.name,
+    score: Number(factor.score) || 0,
+  }));
 
   const pieData = riskData.filter((item) => item.score > 0);
 
@@ -174,7 +163,6 @@ function Dashboard() {
           <h2>현재 공급망 위험도는 {riskLevel} 단계입니다.</h2>
 
           <ul>
-            <li>원유 가격 상승 위험 반영</li>
             <li>USD/KRW 환율 {exchange ? Number(exchange.base_rate).toLocaleString() : "-"}원 반영</li>
             <li>안전재고 이하 품목 {shortageItems.length}개</li>
             <li>지연 발주 {delayedOrders.length}건 발생</li>
@@ -182,7 +170,7 @@ function Dashboard() {
 
           <div className="recommend">
             <b>AI 권장 대응 전략</b>
-            <p>대체 공급처 확보, 안전재고 보충, 생산계획 조정이 필요합니다.</p>
+            <p>{risk?.ai_report || "위험도 데이터를 불러오는 중입니다."}</p>
           </div>
         </section>
 

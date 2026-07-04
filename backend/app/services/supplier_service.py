@@ -14,16 +14,16 @@ def create_supplier(db: Session, supplier: SupplierCreate):
     return db_supplier
 
 
-def get_suppliers(db: Session):
-    return db.query(Supplier).all()
-
-
 def get_suppliers(db: Session, company_id: int):
     return (
         db.query(Supplier)
         .filter(Supplier.company_id == company_id)
         .all()
     )
+
+
+def get_supplier(db: Session, supplier_id: int):
+    return db.query(Supplier).filter(Supplier.id == supplier_id).first()
 
 
 def update_supplier(db: Session, supplier_id: int, supplier: SupplierUpdate):

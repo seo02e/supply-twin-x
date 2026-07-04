@@ -4,6 +4,7 @@ import api from "../services/api";
 function Supplier() {
   const [suppliers, setSuppliers] = useState([]);
   const [keyword, setKeyword] = useState("");
+  const [editingId, setEditingId] = useState(null);
 
   const [form, setForm] = useState({
     supplier_name: "",
@@ -80,26 +81,39 @@ function Supplier() {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const companyId = localStorage.getItem("company_id");
-
-    await api.post("/suppliers/", {
-      company_id: Number(companyId),
-      supplier_name: form.supplier_name,
-      country: form.country,
-      material_name: form.material_name,
-      lead_time_days: Number(form.lead_time_days),
-    });
-
+  const resetForm = () => {
     setForm({
       supplier_name: "",
       country: "",
       material_name: "",
       lead_time_days: "",
     });
+    setEditingId(null);
+  };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const companyId = localStorage.getItem("company_id");
+
+    if (editingId) {
+      await api.put(`/suppliers/${editingId}`, {
+        supplier_name: form.supplier_name,
+        country: form.country,
+        material_name: form.material_name,
+        lead_time_days: Number(form.lead_time_days),
+      });
+    } else {
+      await api.post("/suppliers/", {
+        company_id: Number(companyId),
+        supplier_name: form.supplier_name,
+        country: form.country,
+        material_name: form.material_name,
+        lead_time_days: Number(form.lead_time_days),
+      });
+    }
+
+    resetForm();
     fetchSuppliers();
   };
 
@@ -110,10 +124,12 @@ function Supplier() {
       material_name: item.material_name,
       lead_time_days: item.lead_time_days,
     });
+    setEditingId(item.id);
   };
 
   const handleDelete = async (id) => {
     await api.delete(`/suppliers/${id}`);
+    if (editingId === id) resetForm();
     fetchSuppliers();
   };
 
@@ -180,7 +196,12 @@ function Supplier() {
             required
           />
 
-          <button type="submit">등록 / 수정</button>
+          <button type="submit">{editingId ? "수정 저장" : "등록"}</button>
+          {editingId && (
+            <button type="button" className="cancel-btn" onClick={resetForm}>
+              취소
+            </button>
+          )}
         </form>
       </div>
 

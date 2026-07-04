@@ -4,18 +4,31 @@ import api from "../services/api";
 function Risk() {
   const [inventories, setInventories] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [productions, setProductions] = useState([]);
+  const [risk, setRisk] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const fetchData = async () => {
-    const [inventoryRes, orderRes, productionRes] = await Promise.all([
-      api.get("/inventory/"),
-      api.get("/purchase-orders/"),
-      api.get("/productions/"),
-    ]);
+    const companyId = localStorage.getItem("company_id");
+    setLoading(true);
+    setError(null);
 
-    setInventories(inventoryRes.data);
-    setOrders(orderRes.data);
-    setProductions(productionRes.data);
+    try {
+      const [inventoryRes, orderRes, riskRes] = await Promise.all([
+        api.get(`/inventory/?company_id=${companyId}`),
+        api.get(`/purchase-orders/?company_id=${companyId}`),
+        api.get(`/risk/summary?company_id=${companyId}`),
+      ]);
+
+      setInventories(inventoryRes.data);
+      setOrders(orderRes.data);
+      setRisk(riskRes.data);
+    } catch (err) {
+      console.error("Risk data fetch failed:", err);
+      setError("위험도 데이터를 불러오지 못했습니다.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -28,30 +41,39 @@ function Risk() {
 
   const delayedOrders = orders.filter((item) => item.status === "DELAYED");
 
-  const avgOperationRate =
-    productions.length > 0
-      ? productions.reduce(
-          (sum, item) => sum + Number(item.operation_rate),
-          0,
-        ) / productions.length
-      : 0;
+  const getFactor = (name) =>
+    risk?.factors?.find((factor) => factor.name === name);
 
-  const inventoryScore = shortageItems.length * 30;
-  const orderScore = delayedOrders.length * 20;
-  const operationScore = avgOperationRate > 0 && avgOperationRate < 80 ? 20 : 0;
+  if (loading) {
+    return (
+      <div className="risk-page">
+        <div className="page-title">
+          <h1>Risk Analysis</h1>
+          <p>공급망 위험도를 분석하는 중입니다...</p>
+        </div>
+      </div>
+    );
+  }
 
-  const totalScore = Math.min(
-    100,
-    inventoryScore + orderScore + operationScore,
-  );
+  if (error || !risk) {
+    return (
+      <div className="risk-page">
+        <div className="page-title">
+          <h1>Risk Analysis</h1>
+          <p>{error || "위험도 데이터가 없습니다."}</p>
+        </div>
+      </div>
+    );
+  }
 
-  const level = totalScore >= 70 ? "HIGH" : totalScore >= 40 ? "MEDIUM" : "LOW";
+  const totalScore = risk.total_score;
+  const level = risk.risk_level;
 
   return (
-  <div className="risk-page">
+    <div className="risk-page">
       <div className="page-title">
         <h1>Risk Analysis</h1>
-        <p>ERP 입력 데이터를 기반으로 공급망 위험도를 계산합니다.</p>
+        <p>ERP 입력 데이터와 공공데이터를 기반으로 AI가 공급망 위험도를 계산합니다.</p>
       </div>
 
       <div className="grid-4">
@@ -65,23 +87,13 @@ function Risk() {
           </div>
         </div>
 
-        <div className="card">
-          <p>재고 위험</p>
-          <h2>{inventoryScore}</h2>
-          <span>{shortageItems.length} items below safety stock</span>
-        </div>
-
-        <div className="card">
-          <p>발주 위험</p>
-          <h2>{orderScore}</h2>
-          <span>{delayedOrders.length} delayed orders</span>
-        </div>
-
-        <div className="card">
-          <p>가동률 위험</p>
-          <h2>{operationScore}</h2>
-          <span>Avg. operation rate {avgOperationRate.toFixed(1)}%</span>
-        </div>
+        {risk.factors.map((factor) => (
+          <div className="card" key={factor.name}>
+            <p>{factor.name}</p>
+            <h2>{factor.score}</h2>
+            <span>{factor.reason}</span>
+          </div>
+        ))}
       </div>
 
       <div className="grid-2">
@@ -112,10 +124,10 @@ function Risk() {
               <li>지연된 발주가 없습니다.</li>
             )}
 
-            {operationScore > 0 ? (
-              <li>평균 가동률이 80% 미만으로 하락했습니다.</li>
+            {getFactor("가동률") && Number(getFactor("가동률").score) > 0 ? (
+              <li>산업단지 가동률 저하가 감지되었습니다.</li>
             ) : (
-              <li>평균 가동률은 안정적인 수준입니다.</li>
+              <li>가동률은 안정적인 수준입니다.</li>
             )}
           </ul>
         </div>
@@ -136,14 +148,8 @@ function Risk() {
       </div>
 
       <div className="panel report">
-        <h3>AI 리포트 미리보기</h3>
-        <p>
-          현재 공급망 위험도는 <strong>{level}</strong> 단계입니다. 총 위험
-          점수는 <strong>{totalScore}점</strong>이며, 주요 위험 요인은 재고
-          부족, 발주 지연, 생산 가동률 저하 여부를 기준으로 산정되었습니다. 이후
-          OpenAI API를 연결하면 이 영역에 원인 분석과 대응 전략이 자동
-          생성됩니다.
-        </p>
+        <h3>AI 리포트</h3>
+        <p>{risk.ai_report}</p>
       </div>
     </div>
   );

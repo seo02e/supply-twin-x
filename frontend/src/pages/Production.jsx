@@ -4,6 +4,7 @@ import api from "../services/api";
 function Production() {
   const [productions, setProductions] = useState([]);
   const [keyword, setKeyword] = useState("");
+  const [editingId, setEditingId] = useState(null);
 
   const [form, setForm] = useState({
     product_name: "",
@@ -69,26 +70,39 @@ function Production() {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const companyId = localStorage.getItem("company_id");
-
-    await api.post("/productions/", {
-      company_id: Number(companyId),
-      product_name: form.product_name,
-      production_quantity: Number(form.production_quantity),
-      operation_rate: Number(form.operation_rate),
-      production_date: form.production_date,
-    });
-
+  const resetForm = () => {
     setForm({
       product_name: "",
       production_quantity: "",
       operation_rate: "",
       production_date: "",
     });
+    setEditingId(null);
+  };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const companyId = localStorage.getItem("company_id");
+
+    if (editingId) {
+      await api.put(`/productions/${editingId}`, {
+        product_name: form.product_name,
+        production_quantity: Number(form.production_quantity),
+        operation_rate: Number(form.operation_rate),
+        production_date: form.production_date,
+      });
+    } else {
+      await api.post("/productions/", {
+        company_id: Number(companyId),
+        product_name: form.product_name,
+        production_quantity: Number(form.production_quantity),
+        operation_rate: Number(form.operation_rate),
+        production_date: form.production_date,
+      });
+    }
+
+    resetForm();
     fetchProductions();
   };
 
@@ -99,10 +113,12 @@ function Production() {
       operation_rate: item.operation_rate,
       production_date: item.production_date,
     });
+    setEditingId(item.id);
   };
 
   const handleDelete = async (id) => {
     await api.delete(`/productions/${id}`);
+    if (editingId === id) resetForm();
     fetchProductions();
   };
 
@@ -171,7 +187,12 @@ function Production() {
             required
           />
 
-          <button type="submit">등록 / 수정</button>
+          <button type="submit">{editingId ? "수정 저장" : "등록"}</button>
+          {editingId && (
+            <button type="button" className="cancel-btn" onClick={resetForm}>
+              취소
+            </button>
+          )}
         </form>
       </div>
 

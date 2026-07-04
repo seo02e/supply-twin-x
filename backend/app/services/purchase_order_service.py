@@ -17,16 +17,16 @@ def create_purchase_order(db: Session, purchase_order: PurchaseOrderCreate):
     return db_purchase_order
 
 
-def get_purchase_orders(db: Session):
-    return db.query(PurchaseOrder).all()
-
-
 def get_purchase_orders(db: Session, company_id: int):
     return (
         db.query(PurchaseOrder)
         .filter(PurchaseOrder.company_id == company_id)
         .all()
     )
+
+
+def get_purchase_order(db: Session, purchase_order_id: int):
+    return db.query(PurchaseOrder).filter(PurchaseOrder.id == purchase_order_id).first()
 
 
 def update_purchase_order(
