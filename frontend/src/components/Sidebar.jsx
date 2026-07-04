@@ -5,6 +5,11 @@ function Sidebar() {
 
   const handleLogout = () => {
     localStorage.removeItem("access_token");
+    localStorage.removeItem("company_id");
+    localStorage.removeItem("company_name");
+    localStorage.removeItem("username");
+    localStorage.removeItem("role");
+
     navigate("/login");
   };
 

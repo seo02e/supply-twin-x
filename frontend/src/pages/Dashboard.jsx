@@ -22,15 +22,17 @@ function Dashboard() {
   const [exchange, setExchange] = useState(null);
 
   const fetchDashboardData = async () => {
-    try {
-      const [inventoryRes, supplierRes, orderRes, productionRes, exchangeRes] =
-        await Promise.all([
-          api.get("/inventory/"),
-          api.get("/suppliers/"),
-          api.get("/purchase-orders/"),
-          api.get("/productions/"),
-          api.get("/exchange/usd").catch(() => ({ data: null })),
-        ]);
+  const companyId = localStorage.getItem("company_id");
+
+  try {
+    const [inventoryRes, supplierRes, orderRes, productionRes, exchangeRes] =
+      await Promise.all([
+        api.get(`/inventory/?company_id=${companyId}`),
+        api.get(`/suppliers/?company_id=${companyId}`),
+        api.get(`/purchase-orders/?company_id=${companyId}`),
+        api.get(`/productions/?company_id=${companyId}`),
+        api.get("/exchange/usd").catch(() => ({ data: null })),
+      ]);
 
       setInventories(inventoryRes.data);
       setSuppliers(supplierRes.data);
@@ -43,11 +45,11 @@ function Dashboard() {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
+  const token = localStorage.getItem("access_token");
+  if (!token) return;
 
-    fetchDashboardData();
-  }, []);
+  fetchDashboardData();
+}, []);
 
   const shortageItems = inventories.filter(
     (item) => Number(item.current_stock) < Number(item.safety_stock)

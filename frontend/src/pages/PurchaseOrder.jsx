@@ -6,7 +6,6 @@ function PurchaseOrder() {
   const [keyword, setKeyword] = useState("");
 
   const [form, setForm] = useState({
-    company_id: 1,
     supplier_id: 1,
     material_name: "",
     quantity: "",
@@ -16,7 +15,8 @@ function PurchaseOrder() {
   });
 
   const fetchOrders = async () => {
-    const res = await api.get("/purchase-orders/");
+    const companyId = localStorage.getItem("company_id");
+    const res = await api.get(`/purchase-orders/?company_id=${companyId}`);
     setOrders(res.data);
   };
 
@@ -26,7 +26,8 @@ function PurchaseOrder() {
 
   const filteredOrders = useMemo(() => {
     return orders.filter((item) => {
-      const text = `${item.material_name} ${item.status} ${item.supplier_id}`.toLowerCase();
+      const text =
+        `${item.material_name} ${item.status} ${item.supplier_id}`.toLowerCase();
       return text.includes(keyword.toLowerCase());
     });
   }, [orders, keyword]);
@@ -63,8 +64,13 @@ function PurchaseOrder() {
     return orders.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
   }, [orders]);
 
-  const delayedCount = orders.filter((item) => getDeliveryRisk(item) === "지연").length;
-  const urgentCount = orders.filter((item) => getDeliveryRisk(item) === "임박").length;
+  const delayedCount = orders.filter(
+    (item) => getDeliveryRisk(item) === "지연"
+  ).length;
+
+  const urgentCount = orders.filter(
+    (item) => getDeliveryRisk(item) === "임박"
+  ).length;
 
   const handleChange = (e) => {
     setForm({
@@ -76,15 +82,19 @@ function PurchaseOrder() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const companyId = localStorage.getItem("company_id");
+
     await api.post("/purchase-orders/", {
-      ...form,
-      company_id: Number(form.company_id),
+      company_id: Number(companyId),
       supplier_id: Number(form.supplier_id),
+      material_name: form.material_name,
       quantity: Number(form.quantity),
+      order_date: form.order_date,
+      expected_arrival_date: form.expected_arrival_date,
+      status: form.status,
     });
 
     setForm({
-      company_id: 1,
       supplier_id: 1,
       material_name: "",
       quantity: "",
@@ -98,7 +108,6 @@ function PurchaseOrder() {
 
   const handleEdit = (item) => {
     setForm({
-      company_id: item.company_id,
       supplier_id: item.supplier_id,
       material_name: item.material_name,
       quantity: item.quantity,
@@ -143,11 +152,47 @@ function PurchaseOrder() {
         <h3>발주 등록</h3>
 
         <form className="po-form" onSubmit={handleSubmit}>
-          <input name="supplier_id" type="number" placeholder="공급업체 ID" value={form.supplier_id} onChange={handleChange} required />
-          <input name="material_name" placeholder="원자재명" value={form.material_name} onChange={handleChange} required />
-          <input name="quantity" type="number" placeholder="발주 수량" value={form.quantity} onChange={handleChange} required />
-          <input name="order_date" type="date" value={form.order_date} onChange={handleChange} required />
-          <input name="expected_arrival_date" type="date" value={form.expected_arrival_date} onChange={handleChange} required />
+          <input
+            name="supplier_id"
+            type="number"
+            placeholder="공급업체 ID"
+            value={form.supplier_id}
+            onChange={handleChange}
+            required
+          />
+
+          <input
+            name="material_name"
+            placeholder="원자재명"
+            value={form.material_name}
+            onChange={handleChange}
+            required
+          />
+
+          <input
+            name="quantity"
+            type="number"
+            placeholder="발주 수량"
+            value={form.quantity}
+            onChange={handleChange}
+            required
+          />
+
+          <input
+            name="order_date"
+            type="date"
+            value={form.order_date}
+            onChange={handleChange}
+            required
+          />
+
+          <input
+            name="expected_arrival_date"
+            type="date"
+            value={form.expected_arrival_date}
+            onChange={handleChange}
+            required
+          />
 
           <select name="status" value={form.status} onChange={handleChange}>
             <option value="ORDERED">ORDERED</option>
@@ -202,8 +247,18 @@ function PurchaseOrder() {
                   <td>{Number(item.quantity).toLocaleString()}</td>
                   <td>{item.order_date}</td>
                   <td>{item.expected_arrival_date}</td>
-                  <td className={daysLeft < 0 ? "po-danger-text" : daysLeft <= 7 ? "po-warning-text" : "po-safe-text"}>
-                    {daysLeft < 0 ? `${Math.abs(daysLeft)}일 지연` : `${daysLeft}일 남음`}
+                  <td
+                    className={
+                      daysLeft < 0
+                        ? "po-danger-text"
+                        : daysLeft <= 7
+                        ? "po-warning-text"
+                        : "po-safe-text"
+                    }
+                  >
+                    {daysLeft < 0
+                      ? `${Math.abs(daysLeft)}일 지연`
+                      : `${daysLeft}일 남음`}
                   </td>
                   <td>
                     <span className={`status ${item.status.toLowerCase()}`}>
@@ -227,7 +282,10 @@ function PurchaseOrder() {
                     <button className="edit-btn" onClick={() => handleEdit(item)}>
                       수정
                     </button>
-                    <button className="delete-btn" onClick={() => handleDelete(item.id)}>
+                    <button
+                      className="delete-btn"
+                      onClick={() => handleDelete(item.id)}
+                    >
                       삭제
                     </button>
                   </td>

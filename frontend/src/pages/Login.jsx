@@ -14,16 +14,16 @@ function Login() {
     e.preventDefault();
 
     try {
-        const res = await login(form);
+      const res = await login(form);
 
-        localStorage.setItem("access_token", res.data.access_token);
-        localStorage.setItem("company_id", res.data.company_id);
-        localStorage.setItem("company_name", res.data.company_name);
-        localStorage.setItem("user_role", res.data.role);
-        localStorage.setItem("username", res.data.username);
+      localStorage.setItem("access_token", res.data.access_token);
+      localStorage.setItem("company_id", res.data.company_id);
+      localStorage.setItem("company_name", res.data.company_name);
+      localStorage.setItem("role", res.data.role);
+      localStorage.setItem("username", res.data.username);
 
-        navigate("/");
-      } catch (err) {
+      navigate("/");
+    } catch (err) {
       alert("로그인에 실패했습니다.");
       console.log(err);
     }

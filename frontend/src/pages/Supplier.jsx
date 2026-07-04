@@ -6,7 +6,6 @@ function Supplier() {
   const [keyword, setKeyword] = useState("");
 
   const [form, setForm] = useState({
-    company_id: 1,
     supplier_name: "",
     country: "",
     material_name: "",
@@ -14,7 +13,8 @@ function Supplier() {
   });
 
   const fetchSuppliers = async () => {
-    const res = await api.get("/suppliers/");
+    const companyId = localStorage.getItem("company_id");
+    const res = await api.get(`/suppliers/?company_id=${companyId}`);
     setSuppliers(res.data);
   };
 
@@ -24,18 +24,24 @@ function Supplier() {
 
   const filteredSuppliers = useMemo(() => {
     return suppliers.filter((item) => {
-      const text = `${item.supplier_name} ${item.country} ${item.material_name}`.toLowerCase();
+      const text =
+        `${item.supplier_name} ${item.country} ${item.material_name}`.toLowerCase();
       return text.includes(keyword.toLowerCase());
     });
   }, [suppliers, keyword]);
 
   const avgLeadTime = useMemo(() => {
     if (suppliers.length === 0) return 0;
-    const total = suppliers.reduce((sum, item) => sum + Number(item.lead_time_days || 0), 0);
+    const total = suppliers.reduce(
+      (sum, item) => sum + Number(item.lead_time_days || 0),
+      0
+    );
     return total / suppliers.length;
   }, [suppliers]);
 
-  const riskCount = suppliers.filter((item) => Number(item.lead_time_days) >= 30).length;
+  const riskCount = suppliers.filter(
+    (item) => Number(item.lead_time_days) >= 30
+  ).length;
 
   const getRiskStatus = (leadTime) => {
     const days = Number(leadTime);
@@ -77,14 +83,17 @@ function Supplier() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const companyId = localStorage.getItem("company_id");
+
     await api.post("/suppliers/", {
-      ...form,
-      company_id: Number(form.company_id),
+      company_id: Number(companyId),
+      supplier_name: form.supplier_name,
+      country: form.country,
+      material_name: form.material_name,
       lead_time_days: Number(form.lead_time_days),
     });
 
     setForm({
-      company_id: 1,
       supplier_name: "",
       country: "",
       material_name: "",
@@ -96,7 +105,6 @@ function Supplier() {
 
   const handleEdit = (item) => {
     setForm({
-      company_id: item.company_id,
       supplier_name: item.supplier_name,
       country: item.country,
       material_name: item.material_name,
@@ -230,7 +238,10 @@ function Supplier() {
                     <button className="edit-btn" onClick={() => handleEdit(item)}>
                       수정
                     </button>
-                    <button className="delete-btn" onClick={() => handleDelete(item.id)}>
+                    <button
+                      className="delete-btn"
+                      onClick={() => handleDelete(item.id)}
+                    >
                       삭제
                     </button>
                   </td>

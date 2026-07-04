@@ -6,7 +6,6 @@ function Inventory() {
   const [keyword, setKeyword] = useState("");
 
   const [form, setForm] = useState({
-    company_id: 1,
     material_name: "",
     current_stock: "",
     safety_stock: "",
@@ -15,7 +14,8 @@ function Inventory() {
   });
 
   const fetchInventories = async () => {
-    const res = await api.get("/inventory/");
+    const companyId = localStorage.getItem("company_id");
+    const res = await api.get(`/inventory/?company_id=${companyId}`);
     setInventories(res.data);
   };
 
@@ -32,7 +32,8 @@ function Inventory() {
 
   const filteredInventories = useMemo(() => {
     return inventories.filter((item) => {
-      const text = `${item.material_name} ${item.hs_code || ""} ${item.unit}`.toLowerCase();
+      const text =
+        `${item.material_name} ${item.hs_code || ""} ${item.unit}`.toLowerCase();
       return text.includes(keyword.toLowerCase());
     });
   }, [inventories, keyword]);
@@ -70,17 +71,19 @@ function Inventory() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const companyId = localStorage.getItem("company_id");
+
     await api.post("/inventory/", {
-      company_id: Number(form.company_id),
+      company_id: Number(companyId),
       material_name: form.material_name,
       current_stock: Number(form.current_stock),
       safety_stock: Number(form.safety_stock),
       daily_usage: Number(form.daily_usage),
       unit: form.unit,
+      hs_code: "",
     });
 
     setForm({
-      company_id: 1,
       material_name: "",
       current_stock: "",
       safety_stock: "",
@@ -93,7 +96,6 @@ function Inventory() {
 
   const handleEdit = (item) => {
     setForm({
-      company_id: item.company_id,
       material_name: item.material_name,
       current_stock: item.current_stock,
       safety_stock: item.safety_stock,
@@ -120,11 +122,12 @@ function Inventory() {
         <form className="form-grid inventory-form" onSubmit={handleSubmit}>
           <input
             name="material_name"
-            placeholder="원자재명 예: 닭"
+            placeholder="원자재명 예: 원유"
             value={form.material_name}
             onChange={handleChange}
             required
           />
+
           <input
             name="current_stock"
             type="number"
@@ -133,6 +136,7 @@ function Inventory() {
             onChange={handleChange}
             required
           />
+
           <input
             name="safety_stock"
             type="number"
@@ -141,6 +145,7 @@ function Inventory() {
             onChange={handleChange}
             required
           />
+
           <input
             name="daily_usage"
             type="number"
@@ -149,6 +154,7 @@ function Inventory() {
             onChange={handleChange}
             required
           />
+
           <input
             name="unit"
             placeholder="단위"
@@ -224,7 +230,10 @@ function Inventory() {
                     <button className="edit-btn" onClick={() => handleEdit(item)}>
                       수정
                     </button>
-                    <button className="delete-btn" onClick={() => handleDelete(item.id)}>
+                    <button
+                      className="delete-btn"
+                      onClick={() => handleDelete(item.id)}
+                    >
                       삭제
                     </button>
                   </td>
@@ -251,7 +260,8 @@ function Inventory() {
                 <div>
                   <strong>{item.material_name}</strong>
                   <p>
-                    현재 재고 {Number(item.current_stock).toLocaleString()} {item.unit}
+                    현재 재고 {Number(item.current_stock).toLocaleString()}{" "}
+                    {item.unit}
                   </p>
                 </div>
                 <span>{importance.toFixed(1)}%</span>

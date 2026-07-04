@@ -6,7 +6,6 @@ function Production() {
   const [keyword, setKeyword] = useState("");
 
   const [form, setForm] = useState({
-    company_id: 1,
     product_name: "",
     production_quantity: "",
     operation_rate: "",
@@ -14,7 +13,8 @@ function Production() {
   });
 
   const fetchProductions = async () => {
-    const res = await api.get("/productions/");
+    const companyId = localStorage.getItem("company_id");
+    const res = await api.get(`/productions/?company_id=${companyId}`);
     setProductions(res.data);
   };
 
@@ -72,15 +72,17 @@ function Production() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const companyId = localStorage.getItem("company_id");
+
     await api.post("/productions/", {
-      ...form,
-      company_id: Number(form.company_id),
+      company_id: Number(companyId),
+      product_name: form.product_name,
       production_quantity: Number(form.production_quantity),
       operation_rate: Number(form.operation_rate),
+      production_date: form.production_date,
     });
 
     setForm({
-      company_id: 1,
       product_name: "",
       production_quantity: "",
       operation_rate: "",
@@ -92,7 +94,6 @@ function Production() {
 
   const handleEdit = (item) => {
     setForm({
-      company_id: item.company_id,
       product_name: item.product_name,
       production_quantity: item.production_quantity,
       operation_rate: item.operation_rate,
