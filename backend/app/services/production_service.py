@@ -4,8 +4,8 @@ from app.models.models import Production
 from app.schemas.production import ProductionCreate, ProductionUpdate
 
 
-def create_production(db: Session, production: ProductionCreate):
-    db_production = Production(**production.model_dump())
+def create_production(db: Session, production: ProductionCreate, company_id: int):
+    db_production = Production(**production.model_dump(), company_id=company_id)
 
     db.add(db_production)
     db.commit()
@@ -14,16 +14,17 @@ def create_production(db: Session, production: ProductionCreate):
     return db_production
 
 
-def get_productions(db: Session):
-    return db.query(Production).all()
-
-
 def get_productions(db: Session, company_id: int):
     return (
         db.query(Production)
         .filter(Production.company_id == company_id)
         .all()
     )
+
+
+def get_production(db: Session, production_id: int):
+    return db.query(Production).filter(Production.id == production_id).first()
+
 
 def update_production(
     db: Session,

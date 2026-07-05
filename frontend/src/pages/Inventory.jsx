@@ -4,6 +4,7 @@ import api from "../services/api";
 function Inventory() {
   const [inventories, setInventories] = useState([]);
   const [keyword, setKeyword] = useState("");
+  const [editingId, setEditingId] = useState(null);
 
   const [form, setForm] = useState({
     material_name: "",
@@ -14,8 +15,7 @@ function Inventory() {
   });
 
   const fetchInventories = async () => {
-    const companyId = localStorage.getItem("company_id");
-    const res = await api.get(`/inventory/?company_id=${companyId}`);
+    const res = await api.get("/inventory/");
     setInventories(res.data);
   };
 
@@ -68,21 +68,7 @@ function Inventory() {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const companyId = localStorage.getItem("company_id");
-
-    await api.post("/inventory/", {
-      company_id: Number(companyId),
-      material_name: form.material_name,
-      current_stock: Number(form.current_stock),
-      safety_stock: Number(form.safety_stock),
-      daily_usage: Number(form.daily_usage),
-      unit: form.unit,
-      hs_code: "",
-    });
-
+  const resetForm = () => {
     setForm({
       material_name: "",
       current_stock: "",
@@ -90,7 +76,32 @@ function Inventory() {
       daily_usage: "",
       unit: "kg",
     });
+    setEditingId(null);
+  };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (editingId) {
+      await api.put(`/inventory/${editingId}`, {
+        material_name: form.material_name,
+        current_stock: Number(form.current_stock),
+        safety_stock: Number(form.safety_stock),
+        daily_usage: Number(form.daily_usage),
+        unit: form.unit,
+      });
+    } else {
+      await api.post("/inventory/", {
+        material_name: form.material_name,
+        current_stock: Number(form.current_stock),
+        safety_stock: Number(form.safety_stock),
+        daily_usage: Number(form.daily_usage),
+        unit: form.unit,
+        hs_code: "",
+      });
+    }
+
+    resetForm();
     fetchInventories();
   };
 
@@ -102,10 +113,12 @@ function Inventory() {
       daily_usage: item.daily_usage,
       unit: item.unit,
     });
+    setEditingId(item.id);
   };
 
   const handleDelete = async (id) => {
     await api.delete(`/inventory/${id}`);
+    if (editingId === id) resetForm();
     fetchInventories();
   };
 
@@ -163,7 +176,12 @@ function Inventory() {
             required
           />
 
-          <button type="submit">재고 등록 / 수정</button>
+          <button type="submit">{editingId ? "수정 저장" : "재고 등록"}</button>
+          {editingId && (
+            <button type="button" className="cancel-btn" onClick={resetForm}>
+              취소
+            </button>
+          )}
         </form>
       </div>
 

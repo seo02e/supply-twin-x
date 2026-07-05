@@ -43,7 +43,15 @@ class HSCode(Base):
     id = Column(Integer, primary_key=True)
     hs_code = Column(String(20), unique=True)
     item_name = Column(String(255))
-    
+
+
+class CrudeOilPrice(Base):
+    __tablename__ = "crude_oil_prices"
+
+    observation_date = Column(Date, primary_key=True)
+    poildubusdm = Column(Numeric)
+
+
 class MaterialPrice(Base):
     __tablename__ = "material_prices"
 
@@ -187,6 +195,7 @@ class RiskHistory(Base):
     import_score = Column(Numeric)
     inventory_score = Column(Numeric)
     operation_score = Column(Numeric)
+    oil_score = Column(Numeric)
     reason = Column(Text)
     recommendation = Column(Text)
     created_at = Column(DateTime, server_default=func.now())

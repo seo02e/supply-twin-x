@@ -5,7 +5,6 @@ from typing import Optional
 
 
 class InventoryCreate(BaseModel):
-    company_id: int
     material_name: str
     current_stock: Decimal
     safety_stock: Decimal

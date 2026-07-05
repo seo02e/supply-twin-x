@@ -15,5 +15,6 @@ class RiskSummaryResponse(BaseModel):
     import_score: Optional[float]
     inventory_score: Optional[float]
     operation_score: Optional[float]
+    oil_score: Optional[float]
     factors: List[RiskFactor]
     ai_report: str

@@ -157,6 +157,36 @@ def calc_operation_score(complex_name: str, db: Session) -> Optional[float]:
 
 
 # ─────────────────────────────────────────────
+# 5. 국제유가 리스크 점수 (0~100)
+# ─────────────────────────────────────────────
+def calc_oil_score(db: Session) -> Optional[float]:
+    """
+    crude_oil_prices(FRED 두바이유) 최근 2개월 변동률
+    상승률 10% = 100점 기준 선형 스케일링, 0~100 clip
+    """
+    rows = db.execute(text("""
+        SELECT poildubusdm
+        FROM crude_oil_prices
+        WHERE poildubusdm IS NOT NULL
+        ORDER BY observation_date DESC
+        LIMIT 2
+    """)).mappings().all()
+
+    if len(rows) < 2:
+        return None
+
+    latest = float(rows[0]["poildubusdm"])
+    prev = float(rows[1]["poildubusdm"])
+
+    if prev == 0:
+        return None
+
+    change_rate = ((latest - prev) / prev) * 100
+    score = min(100.0, max(0.0, change_rate / 10.0 * 100.0))
+    return round(score, 2)
+
+
+# ─────────────────────────────────────────────
 # 가중 평균 헬퍼 — None 축 제외 후 나머지 가중치로 재분배
 # ─────────────────────────────────────────────
 def _weighted_score(scores_weights: list[tuple[Optional[float], float]]) -> float:
@@ -197,6 +227,7 @@ def _fallback_ai_report(
     import_score: Optional[float],
     inventory_score: Optional[float],
     operation_score: Optional[float],
+    oil_score: Optional[float] = None,
 ) -> dict:
     reason_parts = []
     rec_parts = []
@@ -221,6 +252,11 @@ def _fallback_ai_report(
         if operation_score >= 60:
             rec_parts.append("산업단지 가동률 하락이 감지됩니다. 생산 일정 재점검을 권장합니다.")
 
+    if oil_score is not None:
+        reason_parts.append(f"국제유가 위험도 {oil_score:.1f}점")
+        if oil_score >= 60:
+            rec_parts.append("국제유가 상승세가 감지됩니다. 원가 상승분 반영 및 헷지 전략을 검토하세요.")
+
     reason = (
         f"현재 공급망 위험도는 {risk_level} 단계({total_score:.1f}점)입니다. "
         + " / ".join(reason_parts)
@@ -241,10 +277,11 @@ def _llm_ai_report(
     import_score: Optional[float],
     inventory_score: Optional[float],
     operation_score: Optional[float],
+    oil_score: Optional[float] = None,
 ) -> dict:
     api_key = os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
-        return _fallback_ai_report(total_score, risk_level, price_score, import_score, inventory_score, operation_score)
+        return _fallback_ai_report(total_score, risk_level, price_score, import_score, inventory_score, operation_score, oil_score)
 
     def _fmt_score(v: Optional[float]) -> str:
         return f"{v:.1f}점" if v is not None else "데이터 없음"
@@ -256,6 +293,7 @@ def _llm_ai_report(
         f"- 수입 동향 점수: {_fmt_score(import_score)}\n"
         f"- 재고 점수: {_fmt_score(inventory_score)}\n"
         f"- 가동률 점수: {_fmt_score(operation_score)}\n"
+        f"- 국제유가 점수: {_fmt_score(oil_score)}\n"
     )
 
     try:
@@ -272,7 +310,7 @@ def _llm_ai_report(
     except Exception as exc:
         logger.warning("Claude API 오류, 폴백 사용: %s", exc)
 
-    return _fallback_ai_report(total_score, risk_level, price_score, import_score, inventory_score, operation_score)
+    return _fallback_ai_report(total_score, risk_level, price_score, import_score, inventory_score, operation_score, oil_score)
 
 
 # ─────────────────────────────────────────────
@@ -309,12 +347,14 @@ def calculate_company_risk(company_id: int, db: Session) -> dict:
     import_score = round(sum(import_scores) / len(import_scores), 2) if import_scores else None
     inventory_score = round(sum(inventory_scores) / len(inventory_scores), 2) if inventory_scores else None
     operation_score = calc_operation_score(complex_name, db) if complex_name else None
+    oil_score = calc_oil_score(db)
 
     total_score = round(_weighted_score([
-        (price_score, 0.3),
-        (import_score, 0.2),
-        (inventory_score, 0.3),
-        (operation_score, 0.2),
+        (price_score, 0.25),
+        (import_score, 0.15),
+        (inventory_score, 0.25),
+        (operation_score, 0.15),
+        (oil_score, 0.20),
     ]), 2)
 
     if total_score >= 70:
@@ -330,7 +370,7 @@ def calculate_company_risk(company_id: int, db: Session) -> dict:
     else:
         report = _llm_ai_report(
             total_score, risk_level,
-            price_score, import_score, inventory_score, operation_score,
+            price_score, import_score, inventory_score, operation_score, oil_score,
         )
 
     material_names = ",".join(inv.material_name for inv in inventories if inv.material_name)
@@ -338,11 +378,11 @@ def calculate_company_risk(company_id: int, db: Session) -> dict:
     db.execute(text("""
         INSERT INTO risk_histories (
             company_id, material_name, risk_score, risk_level,
-            price_score, import_score, inventory_score, operation_score,
+            price_score, import_score, inventory_score, operation_score, oil_score,
             reason, recommendation
         ) VALUES (
             :company_id, :material_name, :risk_score, :risk_level,
-            :price_score, :import_score, :inventory_score, :operation_score,
+            :price_score, :import_score, :inventory_score, :operation_score, :oil_score,
             :reason, :recommendation
         )
     """), {
@@ -354,6 +394,7 @@ def calculate_company_risk(company_id: int, db: Session) -> dict:
         "import_score": import_score,
         "inventory_score": inventory_score,
         "operation_score": operation_score,
+        "oil_score": oil_score,
         "reason": report["reason"],
         "recommendation": report["recommendation"],
     })
@@ -369,6 +410,7 @@ def calculate_company_risk(company_id: int, db: Session) -> dict:
         "import_score": _fmt(import_score),
         "inventory_score": _fmt(inventory_score),
         "operation_score": _fmt(operation_score),
+        "oil_score": _fmt(oil_score),
         "factors": [
             {
                 "name": "원자재 가격",
@@ -389,6 +431,11 @@ def calculate_company_risk(company_id: int, db: Session) -> dict:
                 "name": "가동률",
                 "score": _fmt(operation_score) or 0.0,
                 "reason": f"{operation_score:.1f}점" if operation_score is not None else "데이터 없음",
+            },
+            {
+                "name": "국제유가",
+                "score": _fmt(oil_score) or 0.0,
+                "reason": f"{oil_score:.1f}점" if oil_score is not None else "데이터 없음",
             },
         ],
         "ai_report": report["reason"] + " " + report["recommendation"],

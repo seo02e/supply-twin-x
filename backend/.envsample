@@ -1,1 +1,7 @@
 CUSTOMS_API_KEY=인증키
+EXCHANGE_API_KEY=인증키
+EXCHANGE_API_URL=https://oapi.koreaexim.go.kr/site/program/financial/exchangeJSON
+DATABASE_URL=postgresql+psycopg2://postgres:1234@localhost:5432/supply_twin
+SECRET_KEY=랜덤한 긴 문자열 (예: python -c "import secrets; print(secrets.token_hex(32))")
+ANTHROPIC_API_KEY=인증키 (선택 — 없으면 규칙 기반 폴백 리포트 사용)
+CORS_ORIGINS=http://localhost:5173

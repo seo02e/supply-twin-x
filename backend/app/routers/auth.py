@@ -21,6 +21,21 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
     if not company:
         raise HTTPException(status_code=404, detail="회사를 찾을 수 없습니다.")
 
+    # 이미 가입된 사용자가 있는 회사는 사업자등록번호가 일치해야 추가 가입 가능
+    # (신규 회사의 첫 사용자는 회사 생성 시 등록한 번호를 그대로 입력하면 통과)
+    existing_member_count = (
+        db.query(User).filter(User.company_id == company.id).count()
+    )
+
+    if existing_member_count > 0:
+        if not company.business_number or not user.business_number or (
+            user.business_number.strip() != company.business_number.strip()
+        ):
+            raise HTTPException(
+                status_code=403,
+                detail="사업자등록번호가 일치하지 않아 해당 회사에 가입할 수 없습니다.",
+            )
+
     new_user = User(
         email=user.email,
         username=user.username,

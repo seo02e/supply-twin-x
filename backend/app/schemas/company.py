@@ -18,3 +18,13 @@ class CompanyResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class CompanyPublic(BaseModel):
+    """회원가입 시 회사 선택용 — business_number는 가입 검증에 쓰이므로 노출하지 않음."""
+
+    id: int
+    company_name: str
+
+    class Config:
+        from_attributes = True

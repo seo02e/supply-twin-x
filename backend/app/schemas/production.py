@@ -5,7 +5,6 @@ from typing import Optional
 
 
 class ProductionCreate(BaseModel):
-    company_id: int
     product_name: str
     production_quantity: Decimal
     operation_rate: Decimal

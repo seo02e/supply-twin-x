@@ -4,6 +4,7 @@ import api from "../services/api";
 function PurchaseOrder() {
   const [orders, setOrders] = useState([]);
   const [keyword, setKeyword] = useState("");
+  const [editingId, setEditingId] = useState(null);
 
   const [form, setForm] = useState({
     supplier_id: 1,
@@ -15,8 +16,7 @@ function PurchaseOrder() {
   });
 
   const fetchOrders = async () => {
-    const companyId = localStorage.getItem("company_id");
-    const res = await api.get(`/purchase-orders/?company_id=${companyId}`);
+    const res = await api.get("/purchase-orders/");
     setOrders(res.data);
   };
 
@@ -79,21 +79,7 @@ function PurchaseOrder() {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const companyId = localStorage.getItem("company_id");
-
-    await api.post("/purchase-orders/", {
-      company_id: Number(companyId),
-      supplier_id: Number(form.supplier_id),
-      material_name: form.material_name,
-      quantity: Number(form.quantity),
-      order_date: form.order_date,
-      expected_arrival_date: form.expected_arrival_date,
-      status: form.status,
-    });
-
+  const resetForm = () => {
     setForm({
       supplier_id: 1,
       material_name: "",
@@ -102,7 +88,33 @@ function PurchaseOrder() {
       expected_arrival_date: "",
       status: "ORDERED",
     });
+    setEditingId(null);
+  };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (editingId) {
+      await api.put(`/purchase-orders/${editingId}`, {
+        supplier_id: Number(form.supplier_id),
+        material_name: form.material_name,
+        quantity: Number(form.quantity),
+        order_date: form.order_date,
+        expected_arrival_date: form.expected_arrival_date,
+        status: form.status,
+      });
+    } else {
+      await api.post("/purchase-orders/", {
+        supplier_id: Number(form.supplier_id),
+        material_name: form.material_name,
+        quantity: Number(form.quantity),
+        order_date: form.order_date,
+        expected_arrival_date: form.expected_arrival_date,
+        status: form.status,
+      });
+    }
+
+    resetForm();
     fetchOrders();
   };
 
@@ -115,10 +127,12 @@ function PurchaseOrder() {
       expected_arrival_date: item.expected_arrival_date,
       status: item.status,
     });
+    setEditingId(item.id);
   };
 
   const handleDelete = async (id) => {
     await api.delete(`/purchase-orders/${id}`);
+    if (editingId === id) resetForm();
     fetchOrders();
   };
 
@@ -201,7 +215,12 @@ function PurchaseOrder() {
             <option value="COMPLETED">COMPLETED</option>
           </select>
 
-          <button type="submit">등록 / 수정</button>
+          <button type="submit">{editingId ? "수정 저장" : "등록"}</button>
+          {editingId && (
+            <button type="button" className="cancel-btn" onClick={resetForm}>
+              취소
+            </button>
+          )}
         </form>
       </div>
 

@@ -1,45 +1,34 @@
+from sqlalchemy import text
 from sqlalchemy.orm import Session
-from pathlib import Path
-import pandas as pd
 
 from app.models.models import Inventory
 from app.schemas.inventory import InventoryCreate, InventoryUpdate
 
 
-BASE_DIR = Path(__file__).resolve().parents[2]
-HSCODE_CSV_PATH = BASE_DIR / "data" / "processed" / "hscode_clean.csv"
-
-
-def find_hscode_by_material(material_name: str):
+def find_hscode_by_material(material_name: str, db: Session):
     if not material_name:
         return None
 
-    if not HSCODE_CSV_PATH.exists():
-        return None
+    row = db.execute(text("""
+        SELECT hs_code
+        FROM hs_codes
+        WHERE item_name ILIKE :pattern
+        ORDER BY id ASC
+        LIMIT 1
+    """), {"pattern": f"%{material_name}%"}).mappings().first()
 
-    df = pd.read_csv(HSCODE_CSV_PATH, dtype=str).fillna("")
-
-    code_col = "hs_code"
-    name_col = "item_name"
-
-    matched = df[
-        df[name_col].str.contains(material_name, case=False, na=False)
-    ]
-
-    if matched.empty:
-        return None
-
-    return matched.iloc[0][code_col]
+    return row["hs_code"] if row else None
 
 
-def create_inventory(db: Session, inventory: InventoryCreate):
+def create_inventory(db: Session, inventory: InventoryCreate, company_id: int):
     data = inventory.model_dump()
+    data["company_id"] = company_id
 
     if not data.get("hs_code"):
-        data["hs_code"] = find_hscode_by_material(data.get("material_name"))
+        data["hs_code"] = find_hscode_by_material(data.get("material_name"), db)
 
     elif len(str(data.get("hs_code"))) < 10:
-        auto_hs_code = find_hscode_by_material(data.get("material_name"))
+        auto_hs_code = find_hscode_by_material(data.get("material_name"), db)
         if auto_hs_code:
             data["hs_code"] = auto_hs_code
 
@@ -73,11 +62,11 @@ def update_inventory(db: Session, inventory_id: int, inventory: InventoryUpdate)
     data = inventory.model_dump(exclude_unset=True)
 
     if data.get("material_name") and not data.get("hs_code"):
-        data["hs_code"] = find_hscode_by_material(data.get("material_name"))
+        data["hs_code"] = find_hscode_by_material(data.get("material_name"), db)
 
     if data.get("hs_code") and len(str(data["hs_code"])) < 10:
         material_name = data.get("material_name") or db_inventory.material_name
-        auto_hs_code = find_hscode_by_material(material_name)
+        auto_hs_code = find_hscode_by_material(material_name, db)
         if auto_hs_code:
             data["hs_code"] = auto_hs_code
 

@@ -1,9 +1,16 @@
+import os
 from datetime import datetime, timedelta, timezone
 
+from dotenv import load_dotenv
 from jose import jwt
 from passlib.context import CryptContext
 
-SECRET_KEY = "supply-twin-x-secret-key"
+load_dotenv()
+
+SECRET_KEY = os.environ.get("SECRET_KEY")
+if not SECRET_KEY:
+    raise ValueError("SECRET_KEY environment variable is not set.")
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 

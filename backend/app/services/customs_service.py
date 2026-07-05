@@ -1,11 +1,10 @@
 import os
 import re
-from pathlib import Path
 
-import pandas as pd
 import requests
 import xmltodict
 from dotenv import load_dotenv
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.models.models import CustomsTrade, Inventory
@@ -14,9 +13,6 @@ load_dotenv()
 
 CUSTOMS_API_KEY = os.getenv("CUSTOMS_API_KEY")
 CUSTOMS_BASE_URL = "https://apis.data.go.kr/1220000/Itemtrade/getItemtradeList"
-
-BACKEND_DIR = Path(__file__).resolve().parents[2]
-HSCODE_CSV_PATH = BACKEND_DIR / "data" / "processed" / "hscode_clean.csv"
 
 
 def normalize_text(value: str) -> str:
@@ -32,43 +28,40 @@ def to_float(value):
         return None
 
 
-def find_hs_code(material_name: str, current_hs_code: str | None = None) -> str | None:
-    if not HSCODE_CSV_PATH.exists():
-        raise FileNotFoundError(f"HS CODE CSV 파일이 없습니다: {HSCODE_CSV_PATH}")
-
-    df = pd.read_csv(HSCODE_CSV_PATH, dtype=str)
-    df["hs_code"] = df["hs_code"].astype(str).str.strip()
-    df["item_name"] = df["item_name"].astype(str).str.strip()
-
+def find_hs_code(material_name: str, current_hs_code: str | None, db: Session) -> str | None:
     # 1순위: inventories.hs_code가 2709, 7502처럼 앞자리 코드면
-    # hscode_clean.csv에서 해당 코드로 시작하는 10자리 코드 찾기
+    # hs_codes 테이블에서 해당 코드로 시작하는 10자리 코드 찾기
     if current_hs_code:
         prefix = str(current_hs_code).strip()
 
-        matched = df[
-            df["hs_code"].str.startswith(prefix)
-            & (df["hs_code"].str.len() >= 10)
-        ].copy()
+        row = db.execute(text("""
+            SELECT hs_code
+            FROM hs_codes
+            WHERE hs_code LIKE :prefix
+              AND LENGTH(hs_code) >= 10
+            ORDER BY LENGTH(item_name) ASC, hs_code ASC
+            LIMIT 1
+        """), {"prefix": f"{prefix}%"}).mappings().first()
 
-        if not matched.empty:
-            matched["name_len"] = matched["item_name"].str.len()
-            matched = matched.sort_values(["name_len", "hs_code"])
-            return str(matched.iloc[0]["hs_code"])
+        if row:
+            return row["hs_code"]
 
-    # 2순위: material_name이 품목명에 포함되는 것 찾기
+    # 2순위: material_name이 품목명에 포함되는 것 찾기 (공백 제거 후 비교)
     target = normalize_text(material_name)
 
-    matched = df[
-        df["item_name"].apply(lambda x: target in normalize_text(x))
-        & (df["hs_code"].str.len() >= 10)
-    ].copy()
+    rows = db.execute(text("""
+        SELECT hs_code, item_name
+        FROM hs_codes
+        WHERE LENGTH(hs_code) >= 10
+    """)).mappings().all()
 
-    if not matched.empty:
-        matched["name_len"] = matched["item_name"].str.len()
-        matched = matched.sort_values(["name_len", "hs_code"])
-        return str(matched.iloc[0]["hs_code"])
+    matched = [row for row in rows if target in normalize_text(row["item_name"])]
 
-    return None
+    if not matched:
+        return None
+
+    matched.sort(key=lambda row: (len(row["item_name"]), row["hs_code"]))
+    return matched[0]["hs_code"]
 
 
 def fetch_customs_api(strtYymm: int, endYymm: int, hs_code: str):
@@ -133,6 +126,7 @@ def get_customs_import_export(
         hs_code = find_hs_code(
             material_name=material_name,
             current_hs_code=inventory.hs_code,
+            db=db,
         )
 
         if not hs_code:

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel, EmailStr
 
 
@@ -6,6 +8,7 @@ class UserCreate(BaseModel):
     username: str
     password: str
     company_id: int
+    business_number: Optional[str] = None
 
 
 class UserLogin(BaseModel):
